@@ -2,7 +2,7 @@ from board import Board
 from factory import sorted_pieces
 
 P_G = 0.05
-P_H1 = 0.6
+P_H1 = 0.5
 P_H2 = 0.25
 P_H3 = 0.1
 P_H4 = 0.1
@@ -16,7 +16,7 @@ def evaluate_board(board: Board, target_board: Board, deep: int) -> int:
     score += P_H1 * h1_distances(board, target_board)
     score += P_H2 * h2_bad_pieces(board, target_board)
     score += P_H3 * h3_distance_from_blank(board, target_board)
-    # score += P_H4 * h4_linear_conflict(board, target_board)
+    score += P_H4 * h4_linear_conflict(board, target_board)
     # score += P_H5 * h5_corner_conflict(board, target_board)
     return score
 

@@ -122,9 +122,9 @@ def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
         close_node(current, closed, explored)
 
 
-DIMENSION = 6
+DIMENSION = 8
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
-random_board = random_pieces(DIMENSION, 30, 1)[0]
+random_board = random_pieces(DIMENSION, 20, 1)[0]
 print("----------------START----------------")
 print(f"Target: {evaluate_board(target_board, target_board, 0)}")
 print(target_board)
