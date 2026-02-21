@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from board import Board
 
 NSTAT_LIMBO = -1
@@ -22,92 +22,111 @@ class Node:
 
 
 class LinkedList:
+
     def __init__(self, root: Optional[Node] = None):
+        self._length: int = 0
         if root is not None:
             root.next = None
             root.prev = None
-            self.start: Node = root
-            self.end: Node = root
+            self._start: Node = root
+            self._end: Node = root
+            self._length = 1
         else:
-            self.start = None
-            self.end = None
+            self._start = None
+            self._end = None
+            
+    @property
+    def start(self) -> Optional[Node]:
+        return self._start
+            
+    @property
+    def end(self) -> Optional[Node]:
+        return self._end
+    
+    @property
+    def length(self) -> int:
+        return self._length
 
     def set_next(self, next: Node, to: Optional[Node] = None):
         next.prev = None
         next.next = None
 
-        if self.start is None and self.end is None:
-            self.start = next
-            self.end = next
+        if self._start is None and self._end is None:
+            self._start = next
+            self._end = next
             return
 
         if to is None:
-            to = self.end
-            self.end = next
+            to = self._end
+            self._end = next
         else:
             next_of_to = to.next
             if next_of_to is not None:
                 next_of_to.prev = next
                 next.next = next_of_to
             else:
-                self.end = next
+                self._end = next
 
         to.next = next
         next.prev = to
+        self._length += 1
 
     def set_prev(self, prev: Node, to: Optional[Node] = None):
         prev.next = None
         prev.prev = None
 
-        if self.start is None and self.end is None:
-            self.start = prev
-            self.end = prev
+        if self._start is None and self._end is None:
+            self._start = prev
+            self._end = prev
             return
 
         if to is None:
-            to = self.start
-            self.start = prev
+            to = self._start
+            self._start = prev
         else:
             prev_of_to = to.prev
             if prev_of_to is not None:
                 prev_of_to.next = prev
                 prev.prev = prev_of_to
             else:
-                self.start = prev
-                
+                self._start = prev
+
         to.prev = prev
         prev.next = to
+        self._length += 1
 
     def pop_start(self) -> Node:
-        if self.start is None:
+        if self._start is None:
             return None
-        node = self.start
+        node = self._start
         if node is None:
             return None
-        
-        self.start = node.next
+
+        self._start = node.next
         node.next = None
-        
-        if self.start is not None:
-            self.start.prev = None
+
+        if self._start is not None:
+            self._start.prev = None
         else:
-            self.end = None
+            self._end = None
+        self._length -= 1
         return node
 
     def pop_end(self) -> Node:
-        if self.end is None:
+        if self._end is None:
             return None
-        node = self.end
+        node = self._end
         if node is None:
             return None
-        
-        self.end = node.prev
+
+        self._end = node.prev
         node.prev = None
-        
-        if self.end is not None:
-            self.end.next = None
+
+        if self._end is not None:
+            self._end.next = None
         else:
-            self.start = None
+            self._start = None
+        self._length -= 1
         return node
 
     def remove(self, node: Node):
@@ -120,19 +139,20 @@ class LinkedList:
                 next.prev = prev
             else:
                 prev.next = None
-                self.end = prev
+                self._end = prev
         else:
             if next is not None:
                 next.prev = None
-                self.start = next
+                self._start = next
             else:
-                self.start = None
-                self.end = None
+                self._start = None
+                self._end = None
         node.next = None
         node.prev = None
+        self._length -= 1
 
     def find(self, board: Board) -> Optional[Node]:
-        current = self.start
+        current = self._start
         while current is not None:
             if current.board == board:
                 return current
@@ -140,24 +160,114 @@ class LinkedList:
         return None
 
     def is_empty(self) -> bool:
-        return self.start is None and self.end is None
-    
+        return self._start is None and self._end is None
+
     def to_list(self) -> List[Node]:
         nodes: List[Node] = []
-        current = self.start
+        current = self._start
         while current is not None:
             nodes.append(current)
             current = current.next
         return nodes
-    
+
     def print(self):
         nodes = self.to_list()
         print(f"LinkedList: {[str(node.board.get_value()) for node in nodes]}")
-    
+
     def test(self):
-        if self.start is None or self.end is None:
+        if self._start is None or self._end is None:
             return
-        if self.start.prev is not None:
+        if self._start.prev is not None:
             raise Exception("Start has previous")
-        if self.end.next is not None:
+        if self._end.next is not None:
             raise Exception("End has next")
+
+
+class SortedLinkedList(LinkedList):
+    def __init__(self, root: Optional[Node] = None):
+        super().__init__(root)
+        self._range: Tuple[Optional[Node], Optional[Node]] = (None, None)
+
+    @property
+    def min(self) -> Optional[Node]:
+        return self._range[0]
+
+    @property
+    def max(self) -> Optional[Node]:
+        return self._range[1]
+
+    def pop_start(self) -> Node:
+        node = super().pop_start()
+        self._update_range()
+        return node
+
+    def pop_end(self) -> Node:
+        node = super().pop_end()
+        self._update_range()
+        return node
+
+    def remove(self, node: Node):
+        super().remove(node)
+        self._update_range()
+
+    def find(self, board: Board) -> Optional[Node]:
+        return super().find(board)
+
+    def is_empty(self) -> bool:
+        return super().is_empty()
+
+    def to_list(self) -> List[Node]:
+        return super().to_list()
+
+    def print(self):
+        super().print()
+
+    def test(self):
+        super().test()
+        min = self.min()
+        if min is None:
+            return
+        for node in self.to_list():
+            if min.board.get_value() > node.board.get_value():
+                raise Exception("Min is greater than next node")
+
+    def _update_range(self):
+        if self.is_empty():
+            self._range = (None, None)
+            return
+        self._range = (self._start, self._end)
+
+    def insert(self, node: Node):
+        if self.is_empty():
+            super().set_next(node)
+            self._update_range()
+            return
+
+        start = self._start
+        start_diff = start.board.get_value() - node.board.get_value()
+
+        if start_diff > 0:
+            super().set_prev(node, start)
+            self._update_range()
+            return
+
+        end = self._end
+        end_diff = end.board.get_value() - node.board.get_value()
+
+        if end_diff < 0:
+            super().set_next(node, end)
+            self._update_range()
+            return
+
+        if abs(start_diff) < abs(end_diff):
+            while (
+                start is not None and start.board.get_value() < node.board.get_value()
+            ):
+                start = start.next
+            super().set_prev(node, start)
+            self._update_range()
+        else:
+            while end is not None and end.board.get_value() > node.board.get_value():
+                end = end.prev
+            super().set_next(node, end)
+            self._update_range()

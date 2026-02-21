@@ -2,7 +2,7 @@ from typing import Dict, List
 from board import Board
 from evaluator import evaluate_board
 from factory import random_pieces, sorted_pieces
-from node import LinkedList, Node, NSTAT_LIMBO, NSTAT_OPEN, NSTAT_CLOSED
+from node import LinkedList, Node, SortedLinkedList, NSTAT_LIMBO, NSTAT_OPEN, NSTAT_CLOSED
 
 
 def get_path_to_root(node: Node) -> List[Board]:
@@ -22,29 +22,19 @@ def is_closed(node: Node) -> bool:
     return node.status == NSTAT_CLOSED
 
 
-def remove_from_open(node: Node, open: LinkedList):
+def remove_from_open(node: Node, open: SortedLinkedList):
     open.remove(node)
     node.status = NSTAT_LIMBO
 
 
-def open_node(node: Node, open: LinkedList, explored: dict[Board, Node]):
+def open_node(node: Node, open: SortedLinkedList, explored: dict[Board, Node]):
     node.status = NSTAT_OPEN
     explored[node.board] = node
     if node.children is not None:
         for child in node.children:
             child.parent = None
     node.children = None
-    current_open = open.start
-
-    pos = 0
-    while current_open is not None and current_open.board.get_value() < node.board.get_value():
-        pos += 1
-        current_open = current_open.next
-    if current_open is not None:
-        open.set_prev(node, current_open)
-    else:
-        open.set_next(node)
-
+    open.insert(node)
 
 def close_node(node: Node, closed: LinkedList, explored: dict[Board, Node]):
     closed.set_next(node)
@@ -52,7 +42,7 @@ def close_node(node: Node, closed: LinkedList, explored: dict[Board, Node]):
 
 
 def remove_from_closed(
-    node: Node, open: LinkedList, closed: LinkedList, explored: dict[Board, Node]
+    node: Node, open: SortedLinkedList, closed: LinkedList, explored: dict[Board, Node]
 ):
     try:
         del explored[node.board]
@@ -89,7 +79,7 @@ def derivate_boards(node: Node) -> List[Node]:
 
 
 def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
-    open = LinkedList(None)
+    open = SortedLinkedList(None)
     closed = LinkedList(None)
     explored = dict[Board, Node]()
     root = Node(initial, None)
@@ -124,7 +114,7 @@ def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
 
 DIMENSION = 5
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
-random_board = random_pieces(DIMENSION, 30, 1)[0]
+random_board = random_pieces(DIMENSION, 20, 1)[0]
 print("----------------START----------------")
 print(f"Target: {evaluate_board(target_board, target_board, 0)}")
 print(target_board)
