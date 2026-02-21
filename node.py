@@ -120,17 +120,16 @@ class LinkedList:
                 next.prev = prev
             else:
                 prev.next = None
-                node.prev = None
                 self.end = prev
         else:
             if next is not None:
                 next.prev = None
                 self.start = next
-                node.next = None
-                node.prev = None
             else:
                 self.start = None
                 self.end = None
+        node.next = None
+        node.prev = None
 
     def find(self, board: Board) -> Optional[Node]:
         current = self.start
