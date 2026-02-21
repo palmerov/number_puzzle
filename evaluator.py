@@ -1,12 +1,11 @@
 from board import Board
-from factory import sorted_pieces
 
-P_G = 0.05
-P_H1 = 0.5
-P_H2 = 0.25
-P_H3 = 0.05
+P_G = 0.1
+P_H1 = 0.49
+P_H2 = 0.2
+P_H3 = 0.01
 P_H4 = 0.1
-P_H5 = 0.05
+P_H5 = 0.1
 
 def evaluate_board(board: Board, target_board: Board, deep: int) -> int:
     if board == target_board:
@@ -73,6 +72,8 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
         ok_tar_rows = []
         for cur_row in range(board.dimension):
             cur_piece = board.get_piece(cur_row, cur_col)
+            if cur_piece == '#':
+                continue
             tar_row, tar_col = target_board.get_piece_position(cur_piece)
             if cur_col == tar_col and cur_row != tar_row:
                 for oth_tar_row in ok_tar_rows:
@@ -83,6 +84,8 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
         ok_tar_cols = []
         for cur_col in range(board.dimension):
             cur_piece = board.get_piece(cur_row, cur_col)
+            if cur_piece == '#':
+                continue
             tar_row, tar_col = target_board.get_piece_position(cur_piece)
             if cur_row == tar_row and cur_col != tar_col:
                 for oth_tar_col in ok_tar_cols:
@@ -97,25 +100,25 @@ def h5_corner_conflict(board: Board, target_board: Board) -> float:
     conflicts = 0
     lim = board.dimension - 1
     max = max_h5(board.dimension)
-    if board.get_piece(0, 0) == target_board.get_piece(0, 0):
-        if board.get_piece(0, 1) != target_board.get_piece(0, 1):
+    if board.get_piece(0, 0) == target_board.get_piece(0, 0) and board.get_piece(0, 0) != '#':
+        if board.get_piece(0, 1) != target_board.get_piece(0, 1) and board.get_piece(0, 1) != '#':
             conflicts += 1
-        if board.get_piece(1, 0) != target_board.get_piece(1, 0):
+        if board.get_piece(1, 0) != target_board.get_piece(1, 0) and board.get_piece(1, 0) != '#':
             conflicts += 1
-    if board.get_piece(0, lim) == target_board.get_piece(0, lim):
-        if board.get_piece(0, lim - 1) != target_board.get_piece(0, lim - 1):
+    if board.get_piece(0, lim) == target_board.get_piece(0, lim) and board.get_piece(0, lim) != '#':
+        if board.get_piece(0, lim - 1) != target_board.get_piece(0, lim - 1) and board.get_piece(0, lim - 1) != '#':
             conflicts += 1
-        if board.get_piece(1, lim) != target_board.get_piece(1, lim):
+        if board.get_piece(1, lim) != target_board.get_piece(1, lim) and board.get_piece(1, lim) != '#':
             conflicts += 1
-    if board.get_piece(lim, 0) == target_board.get_piece(lim, 0):
-        if board.get_piece(lim - 1, 0) != target_board.get_piece(lim - 1, 0):
+    if board.get_piece(lim, 0) == target_board.get_piece(lim, 0) and board.get_piece(lim, 0) != '#':
+        if board.get_piece(lim - 1, 0) != target_board.get_piece(lim - 1, 0) and board.get_piece(lim - 1, 0) != '#':
             conflicts += 1
-        if board.get_piece(lim, 1) != target_board.get_piece(lim, 1):
+        if board.get_piece(lim, 1) != target_board.get_piece(lim, 1) and board.get_piece(lim, 1) != '#':
             conflicts += 1
-    if board.get_piece(lim, lim) == target_board.get_piece(lim, lim):
-        if board.get_piece(lim - 1, lim) != target_board.get_piece(lim - 1, lim):
+    if board.get_piece(lim, lim) == target_board.get_piece(lim, lim) and board.get_piece(lim, lim) != '#':
+        if board.get_piece(lim - 1, lim) != target_board.get_piece(lim - 1, lim) and board.get_piece(lim - 1, lim) != '#':
             conflicts += 1
-        if board.get_piece(lim, lim - 1) != target_board.get_piece(lim, lim - 1):
+        if board.get_piece(lim, lim - 1) != target_board.get_piece(lim, lim - 1) and board.get_piece(lim, lim - 1) != '#':
             conflicts += 1
     return conflicts / max
 

@@ -20,6 +20,8 @@ def random_pieces(dimension: int, random_movementes: int, count: int) -> List[Bo
         board = Board(dimension, pieces)
         for _ in range(random_movementes):
             future_boards = [b for b in board.get_future_boards() if b not in tabu_boards]
+            if len(future_boards) == 0:
+                break
             index = randint(0, len(future_boards) - 1)
             next_board = future_boards[index]
             tabu_boards.append(next_board)

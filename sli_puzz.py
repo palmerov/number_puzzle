@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 from board import Board
 from evaluator import evaluate_board
 from factory import random_pieces, sorted_pieces
@@ -78,7 +78,7 @@ def derivate_boards(node: Node) -> List[Node]:
     return children
 
 
-def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
+def bfs_puzzle(initial: Board, target: Board, deepth_improve_threshold: int = 5) -> List[Board]:
     open = SortedLinkedList(None)
     closed = LinkedList(None)
     explored = dict[Board, Node]()
@@ -86,8 +86,13 @@ def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
     evaluate_current(root, target)
     open_node(root, open, explored)
 
+    prev_depth = 0
     while not open.is_empty():
         current = open.pop_start()
+        
+        if current.depth % 10 == 0 and prev_depth != current.depth:
+            prev_depth = current.depth
+            print(f"Depth: {current.depth}, Value: {current.board.get_value()}")
 
         if current.board == target:
             return get_path_to_root(current)
@@ -97,12 +102,12 @@ def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
             clone = explored.get(child.board, None)
             if clone is not None:
                 if is_open(clone):
-                    if child.depth < clone.depth:
+                    if child.depth < clone.depth - deepth_improve_threshold:
                         remove_from_open(clone, open)
                         evaluate_current(child, target)
                         open_node(child, open, explored)
                 elif is_closed(clone):
-                    if child.depth < clone.depth:
+                    if child.depth < clone.depth - deepth_improve_threshold:
                         remove_from_closed(clone, open, closed, explored)
                         evaluate_current(child, target)
                         open_node(child, open, explored)
@@ -112,16 +117,16 @@ def bfs_puzzle(initial: Board, target: Board) -> List[Board]:
         close_node(current, closed, explored)
 
 
-DIMENSION = 5
+DIMENSION = 4
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
-random_board = random_pieces(DIMENSION, 20, 1)[0]
+random_board = random_pieces(DIMENSION, 50, 1)[0]
 print("----------------START----------------")
 print(f"Target: {evaluate_board(target_board, target_board, 0)}")
 print(target_board)
 print(f"Start: {evaluate_board(random_board, target_board, 0)}")
 print(random_board)
 
-steps = bfs_puzzle(random_board, target_board)
+steps = bfs_puzzle(random_board, target_board, 5)
 if steps is not None and len(steps) > 0:
     print("Solution found:")
     for step in steps:
