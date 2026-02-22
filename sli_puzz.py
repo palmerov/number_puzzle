@@ -1,5 +1,6 @@
 from typing import List
 from board import Board
+from constants import Constants, max_g, max_h1, max_h2, max_h3, max_h4, max_h5
 from evaluator import evaluate_board
 from factory import random_pieces, sorted_pieces
 from node import (
@@ -84,8 +85,8 @@ def remove_from_closed(
     node.children = None
 
 
-def evaluate_current(node: Node, target_board: Board) -> float:
-    value = evaluate_board(node.board, target_board, node.depth)
+def evaluate_current(node: Node, target_board: Board, constants: Constants) -> float:
+    value = evaluate_board(node.board, target_board, node.depth, constants)
     node.board.value = value
     return value
 
@@ -101,6 +102,7 @@ def derivate_boards(node: Node) -> List[Node]:
 
 
 def bfs_puzzle(
+    constants: Constants,
     initial: Board,
     target: Board,
     deepth_improve_threshold: int = 5,
@@ -111,7 +113,9 @@ def bfs_puzzle(
     closed = LinkedList(None)
     explored = dict[str, Node]()
     root = Node(initial, None)
-    evaluate_current(root, target)
+    target.create_positions_map()
+
+    evaluate_current(root, target, constants)
     open_node(root, open, closed, explored, max_open_size, max_closed_size)
 
     while not open.is_empty():
@@ -127,7 +131,7 @@ def bfs_puzzle(
                 if is_open(clone):
                     if child.depth < clone.depth - deepth_improve_threshold:
                         remove_from_open(clone, open)
-                        evaluate_current(child, target)
+                        evaluate_current(child, target, constants)
                         open_node(
                             child,
                             open,
@@ -139,7 +143,7 @@ def bfs_puzzle(
                 elif is_closed(clone):
                     if child.depth < clone.depth - deepth_improve_threshold:
                         remove_from_closed(clone, open, closed, explored)
-                        evaluate_current(child, target)
+                        evaluate_current(child, target, constants)
                         open_node(
                             child,
                             open,
@@ -149,23 +153,40 @@ def bfs_puzzle(
                             max_closed_size,
                         )
             else:
-                evaluate_current(child, target)
+                evaluate_current(child, target, constants)
                 open_node(child, open, closed, explored, max_open_size, max_closed_size)
         close_node(current, closed, explored, max_closed_size)
 
 
 DIMENSION = 5
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
+
+constants = Constants(
+    weight_g=0.1,
+    weight_h1=0.37,
+    weight_h2=0.26,
+    weight_h3=0.01,
+    weight_h4=0.2,
+    weight_h5=0.06,
+    max_g=max_g(DIMENSION),
+    max_h1=max_h1(DIMENSION),
+    max_h2=max_h2(DIMENSION),
+    max_h3=max_h3(DIMENSION),
+    max_h4=max_h4(DIMENSION),
+    max_h5=max_h5(DIMENSION),
+)
+
+
 random_boards = random_pieces(DIMENSION, 50, 20)
 
 for index, random_board in enumerate(random_boards):
     print(
-        f"---- Board: {index + 1}/{len(random_boards)}, Value: {evaluate_board(random_board, target_board, 0)} ----"
+        f"---- Board: {index + 1}/{len(random_boards)}, Value: {evaluate_board(random_board, target_board, 0, constants)} ----"
     )
     print(random_board)
 
     try:
-        steps = bfs_puzzle(random_board, target_board, 6, 3000, 8000)
+        steps = bfs_puzzle(constants, random_board, target_board, 6, 3000, 8000)
     except MemoryError:
         print(f"Memory error: {index + 1}/{len(random_boards)}")
         print("\n")

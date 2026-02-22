@@ -15,6 +15,7 @@ class Board:
             self.board = a_board
         else:
             raise ValueError("Either pieces or board must be provided")
+        self.positions_map = None
 
     def get_piece(self, row: int, col: int) -> str:
         return self.board[row][col]
@@ -29,7 +30,7 @@ class Board:
         return self.board
 
     def slide_piece(self, row: int, col: int) -> bool:
-        empty_row, empty_col = self.get_empty_position()
+        empty_row, empty_col = self.get_piece_position('#')
         piece = self.get_piece(row, col)
         if row == empty_row:
             if abs(col - empty_col) == 1:
@@ -45,7 +46,7 @@ class Board:
 
     def get_free_pieces_positions(self) -> List[Tuple[int, int]]:
         positions: List[Tuple[int, int]] = []
-        empty_row, empty_col = self.get_empty_position()
+        empty_row, empty_col = self.get_piece_position('#')
         if empty_row > 0:
             positions.append((empty_row - 1, empty_col))
         if empty_row < self.dimension - 1:
@@ -66,10 +67,9 @@ class Board:
             future_boards.append(new_board)
         return future_boards
 
-    def get_empty_position(self) -> (int, int):
-        return self.get_piece_position("#")
-
     def get_piece_position(self, piece: str) -> (int, int):
+        if self.positions_map is not None:
+            return self.get_piece_position_from_map(piece)
         for i in range(self.dimension):
             for j in range(self.dimension):
                 if self.get_piece(i, j) == piece:
@@ -102,3 +102,17 @@ class Board:
     
     def askey(self) -> str:
         return ",".join([str(p) for row in self.board for p in row])
+    
+    def create_positions_map(self):
+        self.positions_map = [None] * (self.dimension * self.dimension)
+        for i in range(self.dimension):
+            for j in range(self.dimension):
+                if self.get_piece(i, j) == '#':
+                    self.positions_map[0] = (i, j)
+                else:
+                    self.positions_map[int(self.get_piece(i, j))] = (i, j)
+                    
+    def get_piece_position_from_map(self, piece: str) -> (int, int):
+        if piece == '#':
+            return self.positions_map[0]
+        return self.positions_map[int(piece)]

@@ -1,71 +1,72 @@
+from typing import List
 from board import Board
-from factory import random_pieces, sorted_pieces
+from constants import Constants
 
-P_G = 0.1
-P_H1 = 0.37
-P_H2 = 0.26
-P_H3 = 0.01
-P_H4 = 0.2
-P_H5 = 0.06
-
-def evaluate_board(board: Board, target_board: Board, deep: int) -> int:
+def evaluate_board(
+    board: Board, target_board: Board, deep: int, constants: Constants
+) -> int:
     if board == target_board:
         return 0
     score = 0.0
-    score += P_G * g_depth(deep, board)
-    score += P_H1 * h1_distances(board, target_board)
-    score += P_H2 * h2_bad_pieces(board, target_board)
-    score += P_H3 * h3_distance_from_blank(board, target_board)
-    score += P_H4 * h4_linear_conflict(board, target_board)
-    score += P_H5 * h5_corner_conflict(board, target_board)
+    score += constants.WEIGHT_G * g_depth(deep, board) / constants.MAX_G
+    score += constants.WEIGHT_H1 * h1_distances(board, target_board) / constants.MAX_H1
+    score += constants.WEIGHT_H2 * h2_bad_pieces(board, target_board) / constants.MAX_H2
+    score += (
+        constants.WEIGHT_H3
+        * h3_distance_from_blank(board, target_board)
+        / constants.MAX_H3
+    )
+    score += (
+        constants.WEIGHT_H4 * h4_linear_conflict(board, target_board) / constants.MAX_H4
+    )
+    score += (
+        constants.WEIGHT_H5 * h5_corner_conflict(board, target_board) / constants.MAX_H5
+    )
     return score
 
 
 # g_deepth is the depth of the board from the root node
 def g_depth(depth: int, board: Board) -> float:
-    return float(depth) / max_g(board.dimension)
+    return float(depth)
 
 
 # h1_distances is the sum of the distances of the pieces from their target positions
 def h1_distances(board: Board, target_board: Board) -> int:
-    max = max_h1(board.dimension)
     total = 0.0
     for i in range(board.dimension):
         for j in range(board.dimension):
             cur_piece = board.get_piece(i, j)
             tar_pos = target_board.get_piece_position(cur_piece)
             total += abs(i - tar_pos[0]) + abs(j - tar_pos[1])
-    return total / (board.dimension * board.dimension) / max
+    return total / (board.dimension * board.dimension)
 
 
 # h2_bad_pieces is the number of pieces that are not in their target positions
 def h2_bad_pieces(board: Board, target_board: Board) -> int:
-    max = max_h2(board.dimension)
     total = 0.0
     for i in range(board.dimension):
         for j in range(board.dimension):
             cur_piece = board.get_piece(i, j)
-            if cur_piece == '#':
+            if cur_piece == "#":
                 continue
             tar_piece = target_board.get_piece(i, j)
             if cur_piece != tar_piece:
                 total += 1
-    return total / max
+    return total
 
 
 # h3_distance_from_blank is the sum of the distances of the pieces from the blank position
 def h3_distance_from_blank(board: Board, target_board: Board) -> float:
-    max = max_h3(board.dimension)
     total = 0.0
     bad_count = 0
-    cur_blank_pos = board.get_empty_position()
+    cur_blank_pos = board.get_piece_position("#")
     for i in range(board.dimension):
         for j in range(board.dimension):
             cur_piece = board.get_piece(i, j)
             if cur_piece != target_board.get_piece(i, j):
                 bad_count += 1
                 total += abs(i - cur_blank_pos[0]) + abs(j - cur_blank_pos[1])
-    return total / bad_count / max
+    return total / bad_count
 
 
 # h4_linear_conflict is the number of linear conflicts
@@ -75,7 +76,7 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
         ok_tar_rows = []
         for cur_row in range(board.dimension):
             cur_piece = board.get_piece(cur_row, cur_col)
-            if cur_piece == '#':
+            if cur_piece == "#":
                 continue
             tar_row, tar_col = target_board.get_piece_position(cur_piece)
             if cur_col == tar_col and cur_row != tar_row:
@@ -87,7 +88,7 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
         ok_tar_cols = []
         for cur_col in range(board.dimension):
             cur_piece = board.get_piece(cur_row, cur_col)
-            if cur_piece == '#':
+            if cur_piece == "#":
                 continue
             tar_row, tar_col = target_board.get_piece_position(cur_piece)
             if cur_row == tar_row and cur_col != tar_col:
@@ -95,156 +96,67 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
                     if oth_tar_col > tar_col:
                         conflicts += 1
                 ok_tar_cols.append(tar_col)
-    return conflicts / max_h4(board.dimension)
+    return conflicts
 
 
 # h5_corner_conflict is the number of corner conflicts
 def h5_corner_conflict(board: Board, target_board: Board) -> float:
     conflicts = 0
     lim = board.dimension - 1
-    max = max_h5(board.dimension)
-    if board.get_piece(0, 0) == target_board.get_piece(0, 0) and board.get_piece(0, 0) != '#':
-        if board.get_piece(0, 1) != target_board.get_piece(0, 1) and board.get_piece(0, 1) != '#':
+    if (
+        board.get_piece(0, 0) == target_board.get_piece(0, 0)
+        and board.get_piece(0, 0) != "#"
+    ):
+        if (
+            board.get_piece(0, 1) != target_board.get_piece(0, 1)
+            and board.get_piece(0, 1) != "#"
+        ):
             conflicts += 1
-        if board.get_piece(1, 0) != target_board.get_piece(1, 0) and board.get_piece(1, 0) != '#':
+        if (
+            board.get_piece(1, 0) != target_board.get_piece(1, 0)
+            and board.get_piece(1, 0) != "#"
+        ):
             conflicts += 1
-    if board.get_piece(0, lim) == target_board.get_piece(0, lim) and board.get_piece(0, lim) != '#':
-        if board.get_piece(0, lim - 1) != target_board.get_piece(0, lim - 1) and board.get_piece(0, lim - 1) != '#':
+    if (
+        board.get_piece(0, lim) == target_board.get_piece(0, lim)
+        and board.get_piece(0, lim) != "#"
+    ):
+        if (
+            board.get_piece(0, lim - 1) != target_board.get_piece(0, lim - 1)
+            and board.get_piece(0, lim - 1) != "#"
+        ):
             conflicts += 1
-        if board.get_piece(1, lim) != target_board.get_piece(1, lim) and board.get_piece(1, lim) != '#':
+        if (
+            board.get_piece(1, lim) != target_board.get_piece(1, lim)
+            and board.get_piece(1, lim) != "#"
+        ):
             conflicts += 1
-    if board.get_piece(lim, 0) == target_board.get_piece(lim, 0) and board.get_piece(lim, 0) != '#':
-        if board.get_piece(lim - 1, 0) != target_board.get_piece(lim - 1, 0) and board.get_piece(lim - 1, 0) != '#':
+    if (
+        board.get_piece(lim, 0) == target_board.get_piece(lim, 0)
+        and board.get_piece(lim, 0) != "#"
+    ):
+        if (
+            board.get_piece(lim - 1, 0) != target_board.get_piece(lim - 1, 0)
+            and board.get_piece(lim - 1, 0) != "#"
+        ):
             conflicts += 1
-        if board.get_piece(lim, 1) != target_board.get_piece(lim, 1) and board.get_piece(lim, 1) != '#':
+        if (
+            board.get_piece(lim, 1) != target_board.get_piece(lim, 1)
+            and board.get_piece(lim, 1) != "#"
+        ):
             conflicts += 1
-    if board.get_piece(lim, lim) == target_board.get_piece(lim, lim) and board.get_piece(lim, lim) != '#':
-        if board.get_piece(lim - 1, lim) != target_board.get_piece(lim - 1, lim) and board.get_piece(lim - 1, lim) != '#':
+    if (
+        board.get_piece(lim, lim) == target_board.get_piece(lim, lim)
+        and board.get_piece(lim, lim) != "#"
+    ):
+        if (
+            board.get_piece(lim - 1, lim) != target_board.get_piece(lim - 1, lim)
+            and board.get_piece(lim - 1, lim) != "#"
+        ):
             conflicts += 1
-        if board.get_piece(lim, lim - 1) != target_board.get_piece(lim, lim - 1) and board.get_piece(lim, lim - 1) != '#':
+        if (
+            board.get_piece(lim, lim - 1) != target_board.get_piece(lim, lim - 1)
+            and board.get_piece(lim, lim - 1) != "#"
+        ):
             conflicts += 1
-    return conflicts / max
-
-
-# max_g is the maximum value of g
-def max_g(dimension: int) -> float:
-    if dimension == 3:
-        return 40
-    if dimension == 4:
-        return 42
-    if dimension == 5:
-        return 44
-    if dimension == 6:
-        return 46
-    if dimension == 7:
-        return 48
-    if dimension == 8:
-        return 50
-    if dimension == 9:
-        return 52
-    if dimension == 10:
-        return 54
-
-
-# max_h1 is the maximum value of h1
-def max_h1(dimension: int) -> float:
-    if dimension == 3:
-        return 4
-    if dimension == 4:
-        return 16
-    if dimension == 5:
-        return 25
-    if dimension == 6:
-        return 36
-    if dimension == 7:
-        return 49
-    if dimension == 8:
-        return 64
-    if dimension == 9:
-        return 81
-    if dimension == 10:
-        return 100
-
-
-# max_h2 is the maximum value of h2
-def max_h2(dimension: int) -> float:
-    if dimension == 3:
-        return 9
-    if dimension == 4:
-        return 16
-    if dimension == 5:
-        return 25
-    if dimension == 6:
-        return 36
-    if dimension == 7:
-        return 49
-    if dimension == 8:
-        return 64
-    if dimension == 9:
-        return 81
-    if dimension == 10:
-        return 100
-
-# max_h3 is the maximum value of h3
-def max_h3(dimension: int) -> float:
-    if dimension == 3:
-        return 4
-    if dimension == 4:
-        return 16
-    if dimension == 5:
-        return 25
-    if dimension == 6:
-        return 36
-    if dimension == 7:
-        return 49
-    if dimension == 8:
-        return 64
-    if dimension == 9:
-        return 81
-    if dimension == 10:
-        return 100
-
-
-# max_h4 is the maximum value of h4
-def max_h4(dimension: int) -> float:
-    if dimension == 3:
-        return 3
-    if dimension == 4:
-        return 8
-    if dimension == 5:
-        return 10
-    if dimension == 6:
-        return 12
-    if dimension == 7:
-        return 14
-    if dimension == 8:
-        return 16
-    if dimension == 9:
-        return 18
-    if dimension == 10:
-        return 18
-
-# pon_h4 is the penalty value of h4
-def max_h5(dimension: int) -> float:
-    if dimension == 3:
-        return 8
-    if dimension == 4:
-        return 16
-    if dimension == 5:
-        return 25
-    if dimension == 6:
-        return 36
-    if dimension == 7:
-        return 49
-    if dimension == 8:
-        return 64
-    if dimension == 9:
-        return 81
-    if dimension == 10:
-        return 100
-
-#dimension = 4
-#target_board = Board(dimension, sorted_pieces(dimension))
-#b = random_pieces(dimension, 100, 1)[0]
-#print(b)
-#print(h4_linear_conflict(b, target_board))
+    return conflicts
