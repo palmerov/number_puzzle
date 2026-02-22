@@ -90,9 +90,10 @@ def bfs_puzzle(initial: Board, target: Board, deepth_improve_threshold: int = 5)
     while not open.is_empty():
         current = open.pop_start()
         
-        if current.depth % 10 == 0 and prev_depth != current.depth:
+        if abs(prev_depth - current.depth) >= 10:
             prev_depth = current.depth
             print(f"Depth: {current.depth}, Value: {current.board.get_value()}")
+            print(current.board)
 
         if current.board == target:
             return get_path_to_root(current)
@@ -117,16 +118,16 @@ def bfs_puzzle(initial: Board, target: Board, deepth_improve_threshold: int = 5)
         close_node(current, closed, explored)
 
 
-DIMENSION = 4
+DIMENSION = 6
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
-random_board = random_pieces(DIMENSION, 50, 1)[0]
+random_board = random_pieces(DIMENSION, 35, 1)[0]
 print("----------------START----------------")
 print(f"Target: {evaluate_board(target_board, target_board, 0)}")
 print(target_board)
 print(f"Start: {evaluate_board(random_board, target_board, 0)}")
 print(random_board)
 
-steps = bfs_puzzle(random_board, target_board, 5)
+steps = bfs_puzzle(random_board, target_board, 15)
 if steps is not None and len(steps) > 0:
     print("Solution found:")
     for step in steps:

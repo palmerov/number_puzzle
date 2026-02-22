@@ -1,11 +1,12 @@
 from board import Board
+from factory import random_pieces, sorted_pieces
 
 P_G = 0.1
-P_H1 = 0.49
-P_H2 = 0.2
+P_H1 = 0.4
+P_H2 = 0.22
 P_H3 = 0.01
-P_H4 = 0.1
-P_H5 = 0.1
+P_H4 = 0.21
+P_H5 = 0.06
 
 def evaluate_board(board: Board, target_board: Board, deep: int) -> int:
     if board == target_board:
@@ -205,22 +206,21 @@ def max_h3(dimension: int) -> float:
 # max_h4 is the maximum value of h4
 def max_h4(dimension: int) -> float:
     if dimension == 3:
-        return 4
+        return 3
     if dimension == 4:
-        return 16
+        return 8
     if dimension == 5:
-        return 25
+        return 10
     if dimension == 6:
-        return 36
+        return 12
     if dimension == 7:
-        return 49
+        return 14
     if dimension == 8:
-        return 64
+        return 16
     if dimension == 9:
-        return 81
+        return 18
     if dimension == 10:
-        return 100
-
+        return 18
 
 # pon_h4 is the penalty value of h4
 def max_h5(dimension: int) -> float:
@@ -241,107 +241,8 @@ def max_h5(dimension: int) -> float:
     if dimension == 10:
         return 100
 
-
-# pon_g is the penalty value of g
-def pon_g(dimension: int) -> float:
-    if dimension == 3:
-        return 0.2
-    if dimension == 4:
-        return 0.2
-    if dimension == 5:
-        return 0.2
-    if dimension == 6:
-        return 0.2
-    if dimension == 7:
-        return 0.2
-    if dimension == 8:
-        return 0.2
-    if dimension == 9:
-        return 0.2
-    if dimension == 10:
-        return 0.2
-
-# pon_h1 is the penalty value of h1
-def pon_h1(dimension: int) -> float:
-    if dimension == 3:
-        return 0.3
-    if dimension == 4:
-        return 0.3
-    if dimension == 5:
-        return 0.3
-    if dimension == 6:
-        return 0.3
-    if dimension == 7:
-        return 0.3
-    if dimension == 8:
-        return 0.3
-    if dimension == 9:
-        return 0.3
-    if dimension == 10:
-        return 0.3
-
-
-# pon_h2 is the penalty value of h2
-def pon_h2(dimension: int) -> float:
-    if dimension == 3:
-        return 0.1
-    if dimension == 4:
-        return 0.1
-    if dimension == 5:
-        return 0.1
-    if dimension == 6:
-        return 0.1
-    if dimension == 7:
-        return 0.1
-    if dimension == 8:
-        return 0.1
-    if dimension == 9:
-        return 0.1
-    if dimension == 10:
-        return 0.1
-
-
-# pon_h3 is the penalty value of h3
-def pon_h3(dimension: int) -> float:
-    if dimension == 3:
-        return 0.002
-
-
-# pon_h3 is the penalty value of h3
-def pon_h4(dimension: int) -> float:
-    if dimension == 3:
-        return 0.4
-    if dimension == 4:
-        return 0.4
-    if dimension == 5:
-        return 0.4
-    if dimension == 6:
-        return 0.4
-    if dimension == 7:
-        return 0.4
-    if dimension == 8:
-        return 0.4
-    if dimension == 9:
-        return 0.4
-    if dimension == 10:
-        return 0.4
-
-
-# max_h5 is the maximum value of h5
-def pon_h5(dimension: int) -> float:
-    if dimension == 3:
-        return 0.05
-    if dimension == 4:
-        return 0.05
-    if dimension == 5:
-        return 0.05
-    if dimension == 6:
-        return 0.05
-    if dimension == 7:
-        return 0.05
-    if dimension == 8:
-        return 0.05
-    if dimension == 9:
-        return 0.05
-    if dimension == 10:
-        return 0.05
+#dimension = 4
+#target_board = Board(dimension, sorted_pieces(dimension))
+#b = random_pieces(dimension, 100, 1)[0]
+#print(b)
+#print(h4_linear_conflict(b, target_board))
