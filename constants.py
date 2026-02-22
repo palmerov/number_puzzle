@@ -67,17 +67,17 @@ def max_g(dimension: int) -> float:
     if dimension == 4:
         return 100
     if dimension == 5:
-        return 160
+        return 170
     if dimension == 6:
-        return 220
+        return 230
     if dimension == 7:
-        return 260
+        return 270
     if dimension == 8:
-        return 300
+        return 310
     if dimension == 9:
-        return 340
+        return 350
     if dimension == 10:
-        return 380
+        return 400
 
 
 # max_h1 is the maximum value of h1
@@ -131,7 +131,7 @@ def max_h3(dimension: int) -> float:
     if dimension == 6:
         return 10
     if dimension == 7:
-        return 10
+        return 11
     if dimension == 8:
         return 12
     if dimension == 9:
@@ -171,10 +171,10 @@ def max_h5(dimension: int) -> float:
     if dimension == 6:
         return 5
     if dimension == 7:
-        return 7
+        return 5
     if dimension == 8:
-        return 8
+        return 6
     if dimension == 9:
-        return 9
+        return 6
     if dimension == 10:
-        return 10
+        return 7

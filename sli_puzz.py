@@ -158,12 +158,12 @@ def bfs_puzzle(
         close_node(current, closed, explored, max_closed_size)
 
 
-DIMENSION = 6
+DIMENSION = 8
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
 
 constants = Constants(
-    weight_g=0.11,
-    weight_h1=0.36,
+    weight_g=0.1,
+    weight_h1=0.37,
     weight_h2=0.26,
     weight_h3=0.01,
     weight_h4=0.2,
