@@ -14,6 +14,7 @@ class Constants:
         max_h3: int,
         max_h4: int,
         max_h5: int,
+        save_statistics: bool = False,
     ):
         self.WEIGHT_G = weight_g
         self.WEIGHT_H1 = weight_h1
@@ -28,45 +29,75 @@ class Constants:
         self.MAX_H3 = max_h3
         self.MAX_H4 = max_h4
         self.MAX_H5 = max_h5
+        
+        # statistics
+        self.SAVE_STATISTICS = save_statistics
+        self.LAST_MAX_G = 0.0
+        self.LAST_MAX_H1 = 0.0
+        self.LAST_MAX_H2 = 0.0
+        self.LAST_MAX_H3 = 0.0
+        self.LAST_MAX_H4 = 0.0
+        self.LAST_MAX_H5 = 0.0
+        
+    def reset_statistics(self):
+        self.LAST_MAX_G = 0.0
+        self.LAST_MAX_H1 = 0.0
+        self.LAST_MAX_H2 = 0.0
+        self.LAST_MAX_H3 = 0.0
+        self.LAST_MAX_H4 = 0.0
+        self.LAST_MAX_H5 = 0.0
+    
+    def get_statistics(self) -> dict:
+        return {
+            "LAST_MAX_G": self.LAST_MAX_G,
+            "LAST_MAX_H1": self.LAST_MAX_H1,
+            "LAST_MAX_H2": self.LAST_MAX_H2,
+            "LAST_MAX_H3": self.LAST_MAX_H3,
+            "LAST_MAX_H4": self.LAST_MAX_H4,
+            "LAST_MAX_H5": self.LAST_MAX_H5
+        }
+    
+    def print_statistics(self):
+        print(f"LAST_MAX_G: {self.LAST_MAX_G}, LAST_MAX_H1: {self.LAST_MAX_H1}, LAST_MAX_H2: {self.LAST_MAX_H2}, LAST_MAX_H3: {self.LAST_MAX_H3}, LAST_MAX_H4: {self.LAST_MAX_H4}, LAST_MAX_H5: {self.LAST_MAX_H5}")
 
 # max_g is the maximum value of g
 def max_g(dimension: int) -> float:
     if dimension == 3:
-        return 40
+        return 60
     if dimension == 4:
-        return 42
+        return 100
     if dimension == 5:
-        return 44
+        return 160
     if dimension == 6:
-        return 46
+        return 220
     if dimension == 7:
-        return 48
+        return 260
     if dimension == 8:
-        return 50
+        return 300
     if dimension == 9:
-        return 52
+        return 340
     if dimension == 10:
-        return 54
+        return 380
 
 
 # max_h1 is the maximum value of h1
 def max_h1(dimension: int) -> float:
     if dimension == 3:
-        return 4
+        return 1.5
     if dimension == 4:
-        return 16
+        return 2.5
     if dimension == 5:
-        return 25
+        return 3
     if dimension == 6:
-        return 36
+        return 4
     if dimension == 7:
-        return 49
+        return 5
     if dimension == 8:
-        return 64
+        return 6
     if dimension == 9:
-        return 81
+        return 7
     if dimension == 10:
-        return 100
+        return 8
 
 
 # max_h2 is the maximum value of h2
@@ -78,72 +109,72 @@ def max_h2(dimension: int) -> float:
     if dimension == 5:
         return 25
     if dimension == 6:
-        return 36
+        return 35   
     if dimension == 7:
-        return 49
+        return 40
     if dimension == 8:
-        return 64
+        return 45
     if dimension == 9:
-        return 81
+        return 50
     if dimension == 10:
-        return 100
+        return 55
 
 
 # max_h3 is the maximum value of h3
 def max_h3(dimension: int) -> float:
     if dimension == 3:
-        return 4
+        return 2
     if dimension == 4:
-        return 16
+        return 5
     if dimension == 5:
-        return 25
+        return 7
     if dimension == 6:
-        return 36
+        return 10
     if dimension == 7:
-        return 49
+        return 10
     if dimension == 8:
-        return 64
+        return 12
     if dimension == 9:
-        return 81
+        return 14
     if dimension == 10:
-        return 100
+        return 16
 
 
 # max_h4 is the maximum value of h4
 def max_h4(dimension: int) -> float:
     if dimension == 3:
-        return 3
+        return 2
     if dimension == 4:
-        return 8
+        return 4
     if dimension == 5:
-        return 10
+        return 5
     if dimension == 6:
-        return 12
+        return 6
     if dimension == 7:
-        return 14
+        return 7
     if dimension == 8:
-        return 16
+        return 8
     if dimension == 9:
-        return 18
+        return 9
     if dimension == 10:
-        return 18
+        return 10
 
 
 # pon_h4 is the penalty value of h4
 def max_h5(dimension: int) -> float:
     if dimension == 3:
-        return 8
+        return 2
     if dimension == 4:
-        return 16
+        return 3
     if dimension == 5:
-        return 25
+        return 4
     if dimension == 6:
-        return 36
+        return 5
     if dimension == 7:
-        return 49
+        return 7
     if dimension == 8:
-        return 64
+        return 8
     if dimension == 9:
-        return 81
+        return 9
     if dimension == 10:
-        return 100
+        return 10

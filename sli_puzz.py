@@ -158,12 +158,12 @@ def bfs_puzzle(
         close_node(current, closed, explored, max_closed_size)
 
 
-DIMENSION = 5
+DIMENSION = 6
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
 
 constants = Constants(
-    weight_g=0.1,
-    weight_h1=0.37,
+    weight_g=0.11,
+    weight_h1=0.36,
     weight_h2=0.26,
     weight_h3=0.01,
     weight_h4=0.2,
@@ -174,10 +174,12 @@ constants = Constants(
     max_h3=max_h3(DIMENSION),
     max_h4=max_h4(DIMENSION),
     max_h5=max_h5(DIMENSION),
+    save_statistics=True,
 )
 
 
 random_boards = random_pieces(DIMENSION, 50, 20)
+max_steps = 0
 
 for index, random_board in enumerate(random_boards):
     print(
@@ -192,9 +194,14 @@ for index, random_board in enumerate(random_boards):
         print("\n")
         continue
     if steps is not None and len(steps) > 0:
-        print(f"Solved: {index + 1}/{len(random_boards)}")
+        print(f"Solved: {index + 1}/{len(random_boards)}: {len(steps)} steps")
+        if len(steps) > max_steps:
+            max_steps = len(steps)
+        print(f"-- Statistics for dimension: {DIMENSION}")
+        print(constants.get_statistics())
     else:
-        print(f"Not solved: {index + 1}/{len(random_boards)}")
+        print(f"Not solved: {index + 1}/{len(random_boards)}: {len(steps)} steps")
     print("\n")
 
+print(f"Max steps: {max_steps}")
 print("----------------END----------------")

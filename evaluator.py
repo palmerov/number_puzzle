@@ -7,21 +7,35 @@ def evaluate_board(
 ) -> int:
     if board == target_board:
         return 0
+    
+    v_g = g_depth(deep, board)
+    v_h1 = h1_distances(board, target_board)
+    v_h2 = h2_bad_pieces(board, target_board)
+    v_h3 = h3_distance_from_blank(board, target_board)
+    v_h4 = h4_linear_conflict(board, target_board)
+    v_h5 = h5_corner_conflict(board, target_board)
+    
+    if constants.SAVE_STATISTICS:
+        if v_g > constants.LAST_MAX_G:
+            constants.LAST_MAX_G = v_g
+        if v_h1 > constants.LAST_MAX_H1:
+            constants.LAST_MAX_H1 = v_h1
+        if v_h2 > constants.LAST_MAX_H2:
+            constants.LAST_MAX_H2 = v_h2
+        if v_h3 > constants.LAST_MAX_H3:
+            constants.LAST_MAX_H3 = v_h3
+        if v_h4 > constants.LAST_MAX_H4:
+            constants.LAST_MAX_H4 = v_h4
+        if v_h5 > constants.LAST_MAX_H5:
+            constants.LAST_MAX_H5 = v_h5
+    
     score = 0.0
-    score += constants.WEIGHT_G * g_depth(deep, board) / constants.MAX_G
-    score += constants.WEIGHT_H1 * h1_distances(board, target_board) / constants.MAX_H1
-    score += constants.WEIGHT_H2 * h2_bad_pieces(board, target_board) / constants.MAX_H2
-    score += (
-        constants.WEIGHT_H3
-        * h3_distance_from_blank(board, target_board)
-        / constants.MAX_H3
-    )
-    score += (
-        constants.WEIGHT_H4 * h4_linear_conflict(board, target_board) / constants.MAX_H4
-    )
-    score += (
-        constants.WEIGHT_H5 * h5_corner_conflict(board, target_board) / constants.MAX_H5
-    )
+    score += constants.WEIGHT_G * v_g / constants.MAX_G
+    score += constants.WEIGHT_H1 * v_h1 / constants.MAX_H1
+    score += constants.WEIGHT_H2 * v_h2 / constants.MAX_H2
+    score += constants.WEIGHT_H3 * v_h3 / constants.MAX_H3
+    score += constants.WEIGHT_H4 * v_h4 / constants.MAX_H4
+    score += constants.WEIGHT_H5 * v_h5 / constants.MAX_H5
     return score
 
 
@@ -38,8 +52,8 @@ def h1_distances(board: Board, target_board: Board) -> int:
             cur_piece = board.get_piece(i, j)
             tar_pos = target_board.get_piece_position(cur_piece)
             total += abs(i - tar_pos[0]) + abs(j - tar_pos[1])
-    return total / (board.dimension * board.dimension)
-
+    final = total / (board.dimension * board.dimension)
+    return final
 
 # h2_bad_pieces is the number of pieces that are not in their target positions
 def h2_bad_pieces(board: Board, target_board: Board) -> int:
