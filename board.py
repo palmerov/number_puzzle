@@ -16,16 +16,10 @@ class Board:
         else:
             raise ValueError("Either pieces or board must be provided")
 
-    def set_value(self, value: float):
-        self.value = value
-
-    def get_value(self) -> float:
-        return self.value
-
     def get_piece(self, row: int, col: int) -> str:
         return self.board[row][col]
 
-    def set_piece(self, row: int, col: str, piece: str):
+    def set_piece(self, row: int, col: int, piece: str):
         self.board[row][col] = piece
 
     def get_dimension(self) -> int:
@@ -104,7 +98,7 @@ class Board:
         return "".join(lines)
 
     def __hash__(self) -> int:
-        return hash(self.key())
+        return hash(self.askey())
     
-    def key(self) -> str:
+    def askey(self) -> str:
         return ",".join([str(p) for row in self.board for p in row])

@@ -2,7 +2,14 @@ from typing import List
 from board import Board
 from evaluator import evaluate_board
 from factory import random_pieces, sorted_pieces
-from node import LinkedList, Node, SortedLinkedList, NSTAT_LIMBO, NSTAT_OPEN, NSTAT_CLOSED
+from node import (
+    LinkedList,
+    Node,
+    SortedLinkedList,
+    NSTAT_LIMBO,
+    NSTAT_OPEN,
+    NSTAT_CLOSED,
+)
 
 
 def get_path_to_root(node: Node) -> List[Board]:
@@ -27,25 +34,40 @@ def remove_from_open(node: Node, open: SortedLinkedList):
     node.status = NSTAT_LIMBO
 
 
-def open_node(node: Node, open: SortedLinkedList, explored: dict[Board, Node]):
+def open_node(
+    node: Node,
+    open: SortedLinkedList,
+    closed: LinkedList,
+    explored: dict[str, Node],
+    max_open_size: int,
+    max_closed_size: int,
+):
     node.status = NSTAT_OPEN
-    explored[node.board] = node
+    explored[node.board.askey()] = node
     if node.children is not None:
         for child in node.children:
             child.parent = None
     node.children = None
     open.insert(node)
+    if open.length > max_open_size:
+        last = open.pop_end()
+        close_node(last, closed, explored, max_closed_size)
 
-def close_node(node: Node, closed: LinkedList, explored: dict[Board, Node]):
+
+def close_node(
+    node: Node, closed: LinkedList, explored: dict[str, Node], max_closed_size: int
+):
     closed.set_next(node)
     node.status = NSTAT_CLOSED
+    if closed.length > max_closed_size:
+        closed.pop_start()
 
 
 def remove_from_closed(
-    node: Node, open: SortedLinkedList, closed: LinkedList, explored: dict[Board, Node]
+    node: Node, open: SortedLinkedList, closed: LinkedList, explored: dict[str, Node]
 ):
     try:
-        del explored[node.board]
+        del explored[node.board.askey()]
     except KeyError:
         pass
     if node.status == NSTAT_CLOSED:
@@ -64,7 +86,7 @@ def remove_from_closed(
 
 def evaluate_current(node: Node, target_board: Board) -> float:
     value = evaluate_board(node.board, target_board, node.depth)
-    node.board.set_value(value)
+    node.board.value = value
     return value
 
 
@@ -78,59 +100,80 @@ def derivate_boards(node: Node) -> List[Node]:
     return children
 
 
-def bfs_puzzle(initial: Board, target: Board, deepth_improve_threshold: int = 5) -> List[Board]:
+def bfs_puzzle(
+    initial: Board,
+    target: Board,
+    deepth_improve_threshold: int = 5,
+    max_open_size: int = 500,
+    max_closed_size: int = 1000,
+) -> List[Board]:
     open = SortedLinkedList(None)
     closed = LinkedList(None)
-    explored = dict[Board, Node]()
+    explored = dict[str, Node]()
     root = Node(initial, None)
     evaluate_current(root, target)
-    open_node(root, open, explored)
+    open_node(root, open, closed, explored, max_open_size, max_closed_size)
 
-    prev_depth = 0
     while not open.is_empty():
         current = open.pop_start()
-        
-        if abs(prev_depth - current.depth) >= 10:
-            prev_depth = current.depth
-            print(f"Depth: {current.depth}, Value: {current.board.get_value()}")
-            print(current.board)
 
         if current.board == target:
             return get_path_to_root(current)
 
         children = derivate_boards(current)
         for child in children:
-            clone = explored.get(child.board, None)
+            clone = explored.get(child.board.askey(), None)
             if clone is not None:
                 if is_open(clone):
                     if child.depth < clone.depth - deepth_improve_threshold:
                         remove_from_open(clone, open)
                         evaluate_current(child, target)
-                        open_node(child, open, explored)
+                        open_node(
+                            child,
+                            open,
+                            closed,
+                            explored,
+                            max_open_size,
+                            max_closed_size,
+                        )
                 elif is_closed(clone):
                     if child.depth < clone.depth - deepth_improve_threshold:
                         remove_from_closed(clone, open, closed, explored)
                         evaluate_current(child, target)
-                        open_node(child, open, explored)
+                        open_node(
+                            child,
+                            open,
+                            closed,
+                            explored,
+                            max_open_size,
+                            max_closed_size,
+                        )
             else:
                 evaluate_current(child, target)
-                open_node(child, open, explored)
-        close_node(current, closed, explored)
+                open_node(child, open, closed, explored, max_open_size, max_closed_size)
+        close_node(current, closed, explored, max_closed_size)
 
 
-DIMENSION = 6
+DIMENSION = 5
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
-random_board = random_pieces(DIMENSION, 35, 1)[0]
-print("----------------START----------------")
-print(f"Target: {evaluate_board(target_board, target_board, 0)}")
-print(target_board)
-print(f"Start: {evaluate_board(random_board, target_board, 0)}")
-print(random_board)
+random_boards = random_pieces(DIMENSION, 50, 20)
 
-steps = bfs_puzzle(random_board, target_board, 15)
-if steps is not None and len(steps) > 0:
-    print("Solution found:")
-    for step in steps:
-        print(step)
-else:
-    print("No solution found")
+for index, random_board in enumerate(random_boards):
+    print(
+        f"---- Board: {index + 1}/{len(random_boards)}, Value: {evaluate_board(random_board, target_board, 0)} ----"
+    )
+    print(random_board)
+
+    try:
+        steps = bfs_puzzle(random_board, target_board, 6, 3000, 8000)
+    except MemoryError:
+        print(f"Memory error: {index + 1}/{len(random_boards)}")
+        print("\n")
+        continue
+    if steps is not None and len(steps) > 0:
+        print(f"Solved: {index + 1}/{len(random_boards)}")
+    else:
+        print(f"Not solved: {index + 1}/{len(random_boards)}")
+    print("\n")
+
+print("----------------END----------------")

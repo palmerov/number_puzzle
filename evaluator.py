@@ -2,10 +2,10 @@ from board import Board
 from factory import random_pieces, sorted_pieces
 
 P_G = 0.1
-P_H1 = 0.4
-P_H2 = 0.22
+P_H1 = 0.37
+P_H2 = 0.26
 P_H3 = 0.01
-P_H4 = 0.21
+P_H4 = 0.2
 P_H5 = 0.06
 
 def evaluate_board(board: Board, target_board: Board, deep: int) -> int:
@@ -45,6 +45,8 @@ def h2_bad_pieces(board: Board, target_board: Board) -> int:
     for i in range(board.dimension):
         for j in range(board.dimension):
             cur_piece = board.get_piece(i, j)
+            if cur_piece == '#':
+                continue
             tar_piece = target_board.get_piece(i, j)
             if cur_piece != tar_piece:
                 total += 1

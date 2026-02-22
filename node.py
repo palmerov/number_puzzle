@@ -51,9 +51,10 @@ class LinkedList:
         next.prev = None
         next.next = None
 
-        if self._start is None and self._end is None:
+        if self._start is None or self._end is None:
             self._start = next
             self._end = next
+            self._length = 1
             return
 
         if to is None:
@@ -75,9 +76,10 @@ class LinkedList:
         prev.next = None
         prev.prev = None
 
-        if self._start is None and self._end is None:
+        if self._start is None or self._end is None:
             self._start = prev
             self._end = prev
+            self._length = 1
             return
 
         if to is None:
@@ -172,7 +174,7 @@ class LinkedList:
 
     def print(self):
         nodes = self.to_list()
-        print(f"LinkedList: {[str(node.board.get_value()) for node in nodes]}")
+        print(f"LinkedList: {[str(node.board.value) for node in nodes]}")
 
     def test(self):
         if self._start is None or self._end is None:
@@ -224,11 +226,10 @@ class SortedLinkedList(LinkedList):
 
     def test(self):
         super().test()
-        min = self.min()
-        if min is None:
+        if self._range[0] is None:
             return
         for node in self.to_list():
-            if min.board.get_value() > node.board.get_value():
+            if self._range[0].board.value > node.board.value:
                 raise Exception("Min is greater than next node")
 
     def _update_range(self):
@@ -244,7 +245,7 @@ class SortedLinkedList(LinkedList):
             return
 
         start = self._start
-        start_diff = start.board.get_value() - node.board.get_value()
+        start_diff = start.board.value - node.board.value
 
         if start_diff > 0:
             super().set_prev(node, start)
@@ -252,7 +253,7 @@ class SortedLinkedList(LinkedList):
             return
 
         end = self._end
-        end_diff = end.board.get_value() - node.board.get_value()
+        end_diff = end.board.value - node.board.value
 
         if end_diff < 0:
             super().set_next(node, end)
@@ -261,13 +262,13 @@ class SortedLinkedList(LinkedList):
 
         if abs(start_diff) < abs(end_diff):
             while (
-                start is not None and start.board.get_value() < node.board.get_value()
+                start is not None and start.board.value < node.board.value
             ):
                 start = start.next
             super().set_prev(node, start)
             self._update_range()
         else:
-            while end is not None and end.board.get_value() > node.board.get_value():
+            while end is not None and end.board.value > node.board.value:
                 end = end.prev
             super().set_next(node, end)
             self._update_range()
