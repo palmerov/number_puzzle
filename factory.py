@@ -8,7 +8,7 @@ def sorted_pieces(dimension: int) -> List[str]:
     pieces = []
     for p in range(num_pieces - 1):
         pieces.append(str(p + 1))
-    pieces.append("#")
+    pieces.append("0")
     return pieces
 
 

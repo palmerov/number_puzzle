@@ -17,7 +17,7 @@ from board import Board
 def _parse_board_line(line: str) -> list:
     """Convierte una línea 'a,b,c' en lista de cadenas; 0 se convierte en '#' (espacio)."""
     parts = [p.strip() for p in line.split(",")]
-    return ["#" if p == "0" else p for p in parts]
+    return parts
 
 
 def load_boards_from_file(filepath: Union[str, Path]) -> Tuple[int, Board, Board]:

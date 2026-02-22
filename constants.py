@@ -109,7 +109,7 @@ def max_h2(dimension: int) -> float:
     if dimension == 5:
         return 25
     if dimension == 6:
-        return 33   
+        return 33
     if dimension == 7:
         return 35
     if dimension == 8:

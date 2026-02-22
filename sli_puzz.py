@@ -188,7 +188,7 @@ for index, random_board in enumerate(random_boards):
     print(random_board)
 
     try:
-        steps = bfs_puzzle(constants, random_board, target_board, 6, 3000, 8000)
+        steps = bfs_puzzle(constants, random_board, target_board, 6, 5000, 10000)
     except MemoryError:
         print(f"Memory error: {index + 1}/{len(random_boards)}")
         print("\n")

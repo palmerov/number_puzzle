@@ -61,7 +61,7 @@ def h2_bad_pieces(board: Board, target_board: Board) -> int:
     for i in range(board.dimension):
         for j in range(board.dimension):
             cur_piece = board.get_piece(i, j)
-            if cur_piece == "#":
+            if cur_piece == "0":
                 continue
             tar_piece = target_board.get_piece(i, j)
             if cur_piece != tar_piece:
@@ -73,7 +73,7 @@ def h2_bad_pieces(board: Board, target_board: Board) -> int:
 def h3_distance_from_blank(board: Board, target_board: Board) -> float:
     total = 0.0
     bad_count = 0
-    cur_blank_pos = board.get_piece_position("#")
+    cur_blank_pos = board.get_piece_position("0")
     for i in range(board.dimension):
         for j in range(board.dimension):
             cur_piece = board.get_piece(i, j)
@@ -90,7 +90,7 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
         ok_tar_rows = []
         for cur_row in range(board.dimension):
             cur_piece = board.get_piece(cur_row, cur_col)
-            if cur_piece == "#":
+            if cur_piece == "0":
                 continue
             tar_row, tar_col = target_board.get_piece_position(cur_piece)
             if cur_col == tar_col and cur_row != tar_row:
@@ -102,7 +102,7 @@ def h4_linear_conflict(board: Board, target_board: Board) -> float:
         ok_tar_cols = []
         for cur_col in range(board.dimension):
             cur_piece = board.get_piece(cur_row, cur_col)
-            if cur_piece == "#":
+            if cur_piece == "0":
                 continue
             tar_row, tar_col = target_board.get_piece_position(cur_piece)
             if cur_row == tar_row and cur_col != tar_col:
@@ -119,58 +119,58 @@ def h5_corner_conflict(board: Board, target_board: Board) -> float:
     lim = board.dimension - 1
     if (
         board.get_piece(0, 0) == target_board.get_piece(0, 0)
-        and board.get_piece(0, 0) != "#"
+        and board.get_piece(0, 0) != "0"
     ):
         if (
             board.get_piece(0, 1) != target_board.get_piece(0, 1)
-            and board.get_piece(0, 1) != "#"
+            and board.get_piece(0, 1) != "0"
         ):
             conflicts += 1
         if (
             board.get_piece(1, 0) != target_board.get_piece(1, 0)
-            and board.get_piece(1, 0) != "#"
+            and board.get_piece(1, 0) != "0"
         ):
             conflicts += 1
     if (
         board.get_piece(0, lim) == target_board.get_piece(0, lim)
-        and board.get_piece(0, lim) != "#"
+        and board.get_piece(0, lim) != "0"
     ):
         if (
             board.get_piece(0, lim - 1) != target_board.get_piece(0, lim - 1)
-            and board.get_piece(0, lim - 1) != "#"
+            and board.get_piece(0, lim - 1) != "0"
         ):
             conflicts += 1
         if (
             board.get_piece(1, lim) != target_board.get_piece(1, lim)
-            and board.get_piece(1, lim) != "#"
+            and board.get_piece(1, lim) != "0"
         ):
             conflicts += 1
     if (
         board.get_piece(lim, 0) == target_board.get_piece(lim, 0)
-        and board.get_piece(lim, 0) != "#"
+        and board.get_piece(lim, 0) != "0"
     ):
         if (
             board.get_piece(lim - 1, 0) != target_board.get_piece(lim - 1, 0)
-            and board.get_piece(lim - 1, 0) != "#"
+            and board.get_piece(lim - 1, 0) != "0"
         ):
             conflicts += 1
         if (
             board.get_piece(lim, 1) != target_board.get_piece(lim, 1)
-            and board.get_piece(lim, 1) != "#"
+            and board.get_piece(lim, 1) != "0"
         ):
             conflicts += 1
     if (
         board.get_piece(lim, lim) == target_board.get_piece(lim, lim)
-        and board.get_piece(lim, lim) != "#"
+        and board.get_piece(lim, lim) != "0"
     ):
         if (
             board.get_piece(lim - 1, lim) != target_board.get_piece(lim - 1, lim)
-            and board.get_piece(lim - 1, lim) != "#"
+            and board.get_piece(lim - 1, lim) != "0"
         ):
             conflicts += 1
         if (
             board.get_piece(lim, lim - 1) != target_board.get_piece(lim, lim - 1)
-            and board.get_piece(lim, lim - 1) != "#"
+            and board.get_piece(lim, lim - 1) != "0"
         ):
             conflicts += 1
     return conflicts

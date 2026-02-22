@@ -30,23 +30,23 @@ class Board:
         return self.board
 
     def slide_piece(self, row: int, col: int) -> bool:
-        empty_row, empty_col = self.get_piece_position('#')
+        empty_row, empty_col = self.get_piece_position('0')
         piece = self.get_piece(row, col)
         if row == empty_row:
             if abs(col - empty_col) == 1:
                 self.set_piece(empty_row, empty_col, piece)
-                self.set_piece(row, col, "#")
+                self.set_piece(row, col, "0")
                 return True
         elif col == empty_col:
             if abs(row - empty_row) == 1:
                 self.set_piece(empty_row, empty_col, piece)
-                self.set_piece(row, col, "#")
+                self.set_piece(row, col, "0")
                 return True
         return False
 
     def get_free_pieces_positions(self) -> List[Tuple[int, int]]:
         positions: List[Tuple[int, int]] = []
-        empty_row, empty_col = self.get_piece_position('#')
+        empty_row, empty_col = self.get_piece_position('0')
         if empty_row > 0:
             positions.append((empty_row - 1, empty_col))
         if empty_row < self.dimension - 1:
@@ -92,6 +92,8 @@ class Board:
         for line in self.board:
             line_str = "\n| "
             for piece in line:
+                if piece == "0":
+                    piece = "▩"
                 line_str += piece + " " * (spaces_count - len(piece))
             lines.append(line_str + "|")
         lines.append("\n'" + "-" * (self.dimension * spaces_count + 1) + "'")
@@ -107,12 +109,12 @@ class Board:
         self.positions_map = [None] * (self.dimension * self.dimension)
         for i in range(self.dimension):
             for j in range(self.dimension):
-                if self.get_piece(i, j) == '#':
+                if self.get_piece(i, j) == '0':
                     self.positions_map[0] = (i, j)
                 else:
                     self.positions_map[int(self.get_piece(i, j))] = (i, j)
                     
     def get_piece_position_from_map(self, piece: str) -> (int, int):
-        if piece == '#':
+        if piece == '0':
             return self.positions_map[0]
         return self.positions_map[int(piece)]
