@@ -158,7 +158,7 @@ def bfs_puzzle(
         close_node(current, closed, explored, max_closed_size)
 
 
-DIMENSION = 8
+DIMENSION = 6
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
 
 constants = Constants(
@@ -178,7 +178,7 @@ constants = Constants(
 )
 
 
-random_boards = random_pieces(DIMENSION, 50, 20)
+random_boards = random_pieces(DIMENSION, 100, 20)
 max_steps = 0
 
 for index, random_board in enumerate(random_boards):

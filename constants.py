@@ -109,15 +109,15 @@ def max_h2(dimension: int) -> float:
     if dimension == 5:
         return 25
     if dimension == 6:
-        return 35   
+        return 33   
     if dimension == 7:
-        return 40
+        return 35
     if dimension == 8:
-        return 45
+        return 38
     if dimension == 9:
-        return 50
+        return 40
     if dimension == 10:
-        return 55
+        return 43
 
 
 # max_h3 is the maximum value of h3
@@ -149,15 +149,15 @@ def max_h4(dimension: int) -> float:
     if dimension == 5:
         return 5
     if dimension == 6:
-        return 6
+        return 5
     if dimension == 7:
-        return 7
+        return 5
     if dimension == 8:
-        return 8
+        return 5
     if dimension == 9:
-        return 9
+        return 5
     if dimension == 10:
-        return 10
+        return 5
 
 
 # pon_h4 is the penalty value of h4
