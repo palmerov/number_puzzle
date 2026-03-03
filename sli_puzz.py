@@ -101,6 +101,17 @@ def derivate_boards(node: Node) -> List[Node]:
     return children
 
 
+def clear_open_closed(open: SortedLinkedList, closed: LinkedList, explored: dict[str, Node]):
+    while not open.is_empty():
+        node = open.pop_start()
+        node.status = NSTAT_LIMBO
+        explored[node.board.askey()] = node
+    while not closed.is_empty():
+        node = closed.pop_start()
+        node.status = NSTAT_LIMBO
+        explored[node.board.askey()] = node
+
+
 def bfs_puzzle(
     constants: Constants,
     initial: Board,
@@ -108,6 +119,7 @@ def bfs_puzzle(
     deepth_improve_threshold: int = 5,
     max_open_size: int = 500,
     max_closed_size: int = 1000,
+    max_iteration_depth: int = 250,
 ) -> List[Board]:
     open = SortedLinkedList(None)
     closed = LinkedList(None)
@@ -123,6 +135,13 @@ def bfs_puzzle(
 
         if current.board == target:
             return get_path_to_root(current)
+
+        if current.depth > max_iteration_depth:
+            print(f"Iteration depth exceeded: {current.depth}")
+            current.depth = 1
+            clear_open_closed(open, closed, explored)
+            evaluate_current(current, target, constants)
+            print(f"New root board, value: {current.board.value}\n{current.board}")
 
         children = derivate_boards(current)
         for child in children:
@@ -158,7 +177,7 @@ def bfs_puzzle(
         close_node(current, closed, explored, max_closed_size)
 
 
-DIMENSION = 8
+DIMENSION = 7
 target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
 
 constants = Constants(
