@@ -1,0 +1,57 @@
+BFS-IDA* CON HORIZONTE LIMITADO — SLIDING PUZZLE
+Entrada: tablero inicial, tablero meta. Salida: secuencia de movimientos del espacio en blanco (U,D,L,R) separados por comas, impresa a consola.
+
+--- Constantes ---
+Constantes: pesos (WEIGHT_G, WEIGHT_H1..H5), cotas máximas por dimensión (MAX_G, MAX_H1..MAX_H5) para normalizar heurísticas.
+
+--- Evaluación de tableros ---
+
+g(depth):
+  Devuelve el costo de profundidad desde la raíz (número de pasos hasta el tablero actual).
+
+h1(board, target):
+  Suma de distancias Manhattan de cada ficha a su posición meta; resultado promediado por el número de celdas.
+
+h2(board, target):
+  Número de fichas que no están en su posición meta (excluyendo el espacio).
+
+h3(board, target):
+  Para cada ficha mal colocada, suma la distancia Manhattan de esa celda al espacio; resultado promediado por el número de fichas mal colocadas.
+
+h4(board, target):
+  Número de conflictos lineales: dos fichas en la misma fila/columna que en el meta están en la misma fila/columna pero en orden inverso (una debe pasar por donde está la otra).
+
+h5(board, target):
+  Número de conflictos en esquinas: esquina correcta pero alguna pieza adyacente (en fila o columna) incorrecta.
+
+evaluate_board(board, target, depth, constants):
+  Si board == target devolver 0. Si no, calcular v_g = g(depth), v_h1..v_h5 con las funciones anteriores. Score = suma de (WEIGHT_i * v_i / MAX_i) para g y cada h. Devolver score. (Opcional: actualizar estadísticas si SAVE_STATISTICS.)
+
+--- Estructuras ---
+Nodo: tablero, padre, profundidad, estado (OPEN/CLOSED/LIMBO), hijos.
+Open: lista ordenada por valor de evaluación (menor primero).
+Closed: lista FIFO de nodos ya expandidos.
+Explored: diccionario tablero -> nodo (por clave del tablero).
+
+--- Búsqueda principal ---
+
+1. Inicializar open (ordenada), closed, explored vacíos.
+2. Crear mapa de posiciones del tablero meta (para evaluar rápido).
+3. Nodo raíz = nodo(tablero_inicial, padre=nulo). Evaluar raíz y asignarle ese valor. Insertar raíz en open y en explored. Marcar OPEN.
+4. Mientras open no esté vacía:
+   a. Sacar el primer nodo de open (el de menor valor) -> current.
+   b. Si current.board == target: reconstruir camino desde current hasta la raíz (lista de tableros); ir a paso 5.
+   c. Horizonte limitado: si current.depth > max_iteration_depth entonces reiniciar búsqueda con current como nueva raíz (vaciar open y closed, mantener explored; re-evaluar current; insertar current en open). Continuar bucle.
+   d. Derivar hijos: obtener sucesores de current (mover cada pieza adyacente al espacio, sin volver al tablero del padre). Para cada hijo:
+      - Si el tablero del hijo ya está en explored como clone:
+        - Si clone está OPEN y hijo tiene profundidad menor que clone - deepth_improve_threshold: quitar clone de open; evaluar hijo; insertar hijo en open y explored; marcar hijo OPEN.
+        - Si clone está CLOSED y misma condición de profundidad: quitar clone de closed y explored (y sus referencias); evaluar hijo; insertar hijo en open y explored; marcar hijo OPEN.
+      - Si no está en explored: evaluar hijo; insertar hijo en open y explored; marcar OPEN.
+   e. Poner current en closed; marcar CLOSED. Si closed supera max_closed_size, quitar el más antiguo. Si al insertar open supera max_open_size, quitar el último de open y pasarlo a closed.
+   f. Repetir desde 4a.
+5. Convertir camino de tableros en secuencia de movimientos del espacio:
+   - Para cada par consecutivo (tablero_actual, tablero_siguiente): obtener posición del espacio en actual (r0, c0) y en siguiente (r1, c1). Si r1 < r0 -> "U"; si r1 > r0 -> "D"; si c1 < c0 -> "L"; si c1 > c0 -> "R". Añadir a lista de movimientos.
+6. Escribir a consola la lista de movimientos separados por comas (ej.: "U,L").
+
+--- Parámetros típicos ---
+deepth_improve_threshold, max_open_size, max_closed_size, max_iteration_depth (límite de profundidad antes de reiniciar con nuevo nodo raíz).

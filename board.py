@@ -7,6 +7,7 @@ class Board:
     ):
         self.dimension = dimension
         self.value = 0.0
+        self.label = ''
         if pieces is not None:
             self.board = []
             for i in range(dimension):
@@ -44,17 +45,17 @@ class Board:
                 return True
         return False
 
-    def get_free_pieces_positions(self) -> List[Tuple[int, int]]:
+    def get_free_pieces_positions(self) -> List[Tuple[int, int, str]]:
         positions: List[Tuple[int, int]] = []
         empty_row, empty_col = self.get_piece_position('0')
         if empty_row > 0:
-            positions.append((empty_row - 1, empty_col))
+            positions.append((empty_row - 1, empty_col, 'U'))
         if empty_row < self.dimension - 1:
-            positions.append((empty_row + 1, empty_col))
+            positions.append((empty_row + 1, empty_col, 'D'))
         if empty_col > 0:
-            positions.append((empty_row, empty_col - 1))
+            positions.append((empty_row, empty_col - 1, 'L'))
         if empty_col < self.dimension - 1:
-            positions.append((empty_row, empty_col + 1))
+            positions.append((empty_row, empty_col + 1, 'R'))
         return positions
 
     def get_future_boards(self) -> List["Board"]:
@@ -64,6 +65,7 @@ class Board:
                 self.dimension, None, [[p for p in row] for row in self.board]
             )
             new_board.slide_piece(position[0], position[1])
+            new_board.label = position[2]
             future_boards.append(new_board)
         return future_boards
 

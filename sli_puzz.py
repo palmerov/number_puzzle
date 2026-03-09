@@ -137,11 +137,9 @@ def bfs_puzzle(
             return get_path_to_root(current)
 
         if current.depth > max_iteration_depth:
-            print(f"Iteration depth exceeded: {current.depth}")
             current.depth = 1
             clear_open_closed(open, closed, explored)
             evaluate_current(current, target, constants)
-            print(f"New root board, value: {current.board.value}\n{current.board}")
 
         children = derivate_boards(current)
         for child in children:
@@ -177,50 +175,51 @@ def bfs_puzzle(
         close_node(current, closed, explored, max_closed_size)
 
 
-DIMENSION = 7
-target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
-
-constants = Constants(
-    weight_g=0.1,
-    weight_h1=0.37,
-    weight_h2=0.26,
-    weight_h3=0.01,
-    weight_h4=0.2,
-    weight_h5=0.06,
-    max_g=max_g(DIMENSION),
-    max_h1=max_h1(DIMENSION),
-    max_h2=max_h2(DIMENSION),
-    max_h3=max_h3(DIMENSION),
-    max_h4=max_h4(DIMENSION),
-    max_h5=max_h5(DIMENSION),
-    save_statistics=True,
-)
-
-
-random_boards = random_pieces(DIMENSION, 50, 20)
-max_steps = 0
-
-for index, random_board in enumerate(random_boards):
-    print(
-        f"---- Board: {index + 1}/{len(random_boards)}, Value: {evaluate_board(random_board, target_board, 0, constants)} ----"
-    )
-    print(random_board)
-
-    try:
-        steps = bfs_puzzle(constants, random_board, target_board, 6, 5000, 10000)
-    except MemoryError:
-        print(f"Memory error: {index + 1}/{len(random_boards)}")
-        print("\n")
-        continue
-    if steps is not None and len(steps) > 0:
-        print(f"Solved: {index + 1}/{len(random_boards)}: {len(steps)} steps")
-        if len(steps) > max_steps:
-            max_steps = len(steps)
-        print(f"-- Statistics for dimension: {DIMENSION}")
-        print(constants.get_statistics())
-    else:
-        print(f"Not solved: {index + 1}/{len(random_boards)}: {len(steps)} steps")
-    print("\n")
-
-print(f"Max steps: {max_steps}")
-print("----------------END----------------")
+# DIMENSION = 7
+# target_board = Board(DIMENSION, sorted_pieces(DIMENSION))
+# 
+# constants = Constants(
+#     weight_g=0.1,
+#     weight_h1=0.37,
+#     weight_h2=0.26,
+#     weight_h3=0.01,
+#     weight_h4=0.2,
+#     weight_h5=0.06,
+#     max_g=max_g(DIMENSION),
+#     max_h1=max_h1(DIMENSION),
+#     max_h2=max_h2(DIMENSION),
+#     max_h3=max_h3(DIMENSION),
+#     max_h4=max_h4(DIMENSION),
+#     max_h5=max_h5(DIMENSION),
+#     save_statistics=True,
+# )
+# 
+# 
+# random_boards = random_pieces(DIMENSION, 50, 20)
+# max_steps = 0
+# 
+# for index, random_board in enumerate(random_boards):
+#     print(
+#         f"---- Board: {index + 1}/{len(random_boards)}, Value: {evaluate_board(random_board, target_board, 0, constants)} ----"
+#     )
+#     print(random_board)
+# 
+#     try:
+#         steps = bfs_puzzle(constants, random_board, target_board, 6, 5000, 10000)
+#     except MemoryError:
+#         print(f"Memory error: {index + 1}/{len(random_boards)}")
+#         print("\n")
+#         continue
+#     if steps is not None and len(steps) > 0:
+#         print(f"Solved: {index + 1}/{len(random_boards)}: {len(steps)} steps")
+#         if len(steps) > max_steps:
+#             max_steps = len(steps)
+#         print(f"-- Statistics for dimension: {DIMENSION}")
+#         print(constants.get_statistics())
+#     else:
+#         print(f"Not solved: {index + 1}/{len(random_boards)}: {len(steps)} steps")
+#     print("\n")
+# 
+# print(f"Max steps: {max_steps}")
+# print("----------------END----------------")
+# 
