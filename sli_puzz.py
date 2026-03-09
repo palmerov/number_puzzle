@@ -120,6 +120,7 @@ def bfs_puzzle(
     max_open_size: int = 500,
     max_closed_size: int = 1000,
     max_iteration_depth: int = 250,
+    stop = None,
 ) -> List[Board]:
     open = SortedLinkedList(None)
     closed = LinkedList(None)
@@ -131,6 +132,8 @@ def bfs_puzzle(
     open_node(root, open, closed, explored, max_open_size, max_closed_size)
 
     while not open.is_empty():
+        if(stop is not None and stop()):
+            return None
         current = open.pop_start()
 
         if current.board == target:

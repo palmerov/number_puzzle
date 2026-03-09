@@ -50,7 +50,7 @@ def main() -> None:
     for filepath in board_files:
         filename = filepath.name
         out_path = RESULTS_DIR / filename
-        if not filename.endswith('.txt'):
+        if not filename.endswith(".txt"):
             continue
 
         try:
@@ -71,12 +71,15 @@ def main() -> None:
         random_steps = int(match.group(1)) if match else "N/A"
         boards_count = len(initial_boards)
 
+        resolved_times_ms: list[int] = []
+        resolved_solution_steps_list: list[int] = []
         times_ms: list[int] = []
         solution_steps_list: list[int] = []
 
         sections = []
         for idx, initial in enumerate(initial_boards):
             t0 = time.perf_counter()
+            stop = lambda: (time.perf_counter() - t0) * 1000 > 150000  # 5 minutes
             try:
                 steps = bfs_puzzle(
                     constants,
@@ -85,12 +88,15 @@ def main() -> None:
                     deepth_improve_threshold=6,
                     max_open_size=5000,
                     max_closed_size=10000,
+                    stop=stop,
                 )
             except MemoryError:
                 elapsed_ms = int((time.perf_counter() - t0) * 1000)
                 times_ms.append(elapsed_ms)
                 solution_steps_list.append(0)
-                print(f"[{filename}] Board {idx + 1}: Memory error. (Time (ms): {elapsed_ms})")
+                print(
+                    f"[{filename}] Board {idx + 1}: Memory error. (Time (ms): {elapsed_ms})"
+                )
                 steps = None
             else:
                 elapsed_ms = int((time.perf_counter() - t0) * 1000)
@@ -98,6 +104,8 @@ def main() -> None:
             if steps is not None and len(steps) > 0:
                 num_steps = len(steps) - 1
                 times_ms.append(elapsed_ms)
+                resolved_times_ms.append(elapsed_ms)
+                resolved_solution_steps_list.append(num_steps)
                 solution_steps_list.append(num_steps)
                 print(f"-- {filename} / Board {idx + 1} --")
                 print(initial)
@@ -111,27 +119,35 @@ def main() -> None:
                 sections.append(f"Board {idx + 1}:")
                 sections.append(initial.__str__())
                 sections.append(f"Time (ms): {elapsed_ms}")
-                sections.append(f"Solution Steps: {num_steps}: ")
-                
+                sections.append(f"Solution Steps: {num_steps}:")
+
                 steps_labels = []
                 for b in steps:
                     steps_labels.append(b.label)
-                sections.append(', '.join(steps_labels))
+                sections.append(", ".join(steps_labels)[2:])
             else:
-                times_ms.append(elapsed_ms)
-                solution_steps_list.append(0)  # no solution
-                print(f"[{filename}] Board {idx + 1}: No solution found. (Time: {elapsed_ms})")
+                times_ms.append(-1)
+                solution_steps_list.append(-1)  # no solution
+                print(
+                    f"[{filename}] Board {idx + 1}: No solution found. (Time: {elapsed_ms})"
+                )
                 sections.append("##############")
                 sections.append(f"Board {idx + 1}:")
                 sections.append(initial.__str__())
                 sections.append(f"Time (ms): {elapsed_ms}")
-                sections.append("Solution Steps:")
-                sections.append("(no solution)")
+                sections.append("Solution Steps: -1:")
+                sections.append("-")
 
-        mean_time = round(sum(times_ms) / len(times_ms), 2) if times_ms else 0
+        mean_time = (
+            round(sum(resolved_times_ms) / len(resolved_times_ms), 2)
+            if resolved_times_ms and len(resolved_times_ms) > 0
+            else 0
+        )
         mean_solution_steps = (
-            round(sum(solution_steps_list) / len(solution_steps_list), 2)
-            if solution_steps_list
+            round(
+                sum(resolved_solution_steps_list) / len(resolved_solution_steps_list), 2
+            )
+            if resolved_solution_steps_list
             else 0
         )
         header_lines = [
